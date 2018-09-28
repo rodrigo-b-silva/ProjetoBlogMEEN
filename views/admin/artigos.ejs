@@ -1,0 +1,35 @@
+<%- include('../cabecalho') %>
+<%- include('../menu') %>
+
+<div class="container">
+        <h1>Artigos</h1>
+        <p><a class="btn btn-primary" href="/admin/artigos/novo">Novo</a></p>
+        <table class="table table-striped">
+            <thead>
+                <th>Titulo</th>
+                <th>Autor</th>
+                <th>Criado em</th>
+                <th>Atualizado em</th>
+                <th></th>
+            </thead>
+            <tbody id="tabela">
+                <% artigos.forEach(function(artigo){ %>
+                    <tr>
+                        <td><%= artigo.titulo %></td>
+                        <td><%= artigo.autor.nome %></td>
+                        <td><%= artigo.criado.toLocaleString() %></td>
+                        <td>
+                            <% if(artigo.atualizado){ %>
+                               <%= artigo.atualizado.toLocaleString() %>
+                            <% } %>
+                        </td>
+                        <td><a class="btn btn-info" href="/admin/artigos/<%=artigo._id%>"><span class="glyphicon glyphicon-pencil"></span></a></td>
+                        <!-- <button class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span></button> -->
+                    </tr>
+                <% }); %>   
+            </tbody>
+        </table>
+</div>
+
+
+<%- include('../rodape') %>

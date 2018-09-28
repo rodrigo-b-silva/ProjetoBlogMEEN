@@ -6,13 +6,18 @@ var urlEncodedParser = bodyParser.urlencoded({extended: false});
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost:27017/blog');
 
+//Models
+var AutorModel = require('./models/autormodel');
+
+app.set('usuario', {id: null, nome: '', admin: false});
+
 //Rotas filhos
 var adminAutoresRouter = require('./routers/adminAutorRouter');
 app.use('/admin/autores', adminAutoresRouter);
+var adminArtigosRouter = require('./routers/adminArtigoRouter');
+app.use('/admin/artigos', adminArtigosRouter);
 
 app.set('view engine', 'ejs');
-
-app.set('usuario', {nome: ''});
 
 //Roteamentos
 app.use('/public', express.static('./public'));
@@ -31,17 +36,21 @@ app.get('/login', function(req, res){
 });
 
 app.post('/login', urlEncodedParser, function(req, res){
-    if(req.body.email == 'rodrigo@gmail.com' && req.body.senha == '1234'){
-        app.set('usuario', {nome: 'Rodrigo Barbosa'});
-        res.redirect('/admin/artigos');
-    }
-    else{
+    AutorModel.findOne({email: req.body.email}, function(erro, autor){
+        if(erro) return console.error(erro);
+        if(autor){
+            if(req.body.senha == autor.senha){
+                app.set('usuario', {id: autor._id, nome: autor.nome, admin: autor.admin});
+                res.redirect('/admin/artigos');
+                return;
+            }
+        }
         res.render('logininvalido', {usuario: app.get('usuario')});
-    }
+    });
 });
 
 app.get('/logout', function(req, res){
-    app.set('usuario', {nome: ''});
+    app.set('usuario', {id: null, nome: '', admin: false});
     res.redirect('/artigos');
 });
 
