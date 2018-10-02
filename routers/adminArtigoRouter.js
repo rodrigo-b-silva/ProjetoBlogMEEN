@@ -5,6 +5,7 @@ var urlEncodedParser = bodyParser.urlencoded({extended: false});
 
 var ArtigoModel = require('../models/artigomodel');
 
+//verifica se o usuario esta logado, caso ñ redireciona para raiz
 artigosRouter.use(function(req, res, next){
     if(req.app.get('usuario').id == null){
         res.redirect('/');
@@ -16,20 +17,21 @@ artigosRouter.use(function(req, res, next){
 artigosRouter.get('/', function(req, res){
     var usuario = req.app.get('usuario');
     var filtro = null;
-    if(!usuario.admin){
-        filtro = {'usuario.id': usuario.id};
+    if(!usuario.admin){ //verifica se o usuario é admin, caso ñ traz um filtro só dos artigos do próprio usuario
+        filtro = {'autor.id' : usuario.id};
     }
     ArtigoModel.find(filtro, null, {sort: {criado: -1}}, function(erro, artigos){
         if(erro) return console.error(erro);
         res.render('admin/artigos', {artigos: artigos, usuario: usuario})
-        //res.json(autores);
     });
 });
 
+//rota para cadastrar um novo artigo
 artigosRouter.get('/novo', function(req, res){
     res.render('admin/novoartigo', {usuario: req.app.get('usuario')});
 });
 
+//rota para o post de um novo artigo
 artigosRouter.post('/novo', urlEncodedParser, function(req, res){
     var artigo = ArtigoModel({
         titulo: req.body.titulo,
@@ -49,12 +51,15 @@ artigosRouter.post('/novo', urlEncodedParser, function(req, res){
     })
 });
 
+
+//rota para a consulta de um artigo
 artigosRouter.get('/:id', function(req, res){
     ArtigoModel.findById(req.params.id, function(erro, artigo){
         res.render('admin/artigo', {artigo: artigo, usuario: req.app.get('usuario')});
     });
 });
 
+//rota para atualizar um artigo
 artigosRouter.post('/:id', urlEncodedParser, function(req, res){
     var artigo = ArtigoModel({
         _id: req.params.id,
@@ -74,6 +79,7 @@ artigosRouter.post('/:id', urlEncodedParser, function(req, res){
     });
 });
 
+//rota para remoção de um artigo
 artigosRouter.get('/:id/excluir', function(req, res){
     ArtigoModel.remove({ _id: req.params.id }, function(erro){
         res.render('admin/artigoexcluido', { usuario: req.app.get('usuario')});

@@ -36,11 +36,11 @@ app.get('/login', function(req, res){
 });
 
 app.post('/login', urlEncodedParser, function(req, res){
-    AutorModel.findOne({email: req.body.email}, function(erro, autor){
+    AutorModel.findOne({email: req.body.email}, function(erro, autor){ //vai ao banco e traz o usuario que possui o email da requisição
         if(erro) return console.error(erro);
         if(autor){
-            if(req.body.senha == autor.senha){
-                app.set('usuario', {id: autor._id, nome: autor.nome, admin: autor.admin});
+            if(req.body.senha == autor.senha){ //verifica se a senha da requisição é igual a senha que veio do banco
+                app.set('usuario', {id: autor._id, nome: autor.nome, admin: autor.admin}); //atualiza a seção de usuario global
                 res.redirect('/admin/artigos');
                 return;
             }
